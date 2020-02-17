@@ -1,0 +1,185 @@
+﻿@{Layout = "~/Views/Shared/_Layout.cshtml";}
+@{ViewBag.Title = "PCS Management";}
+
+@section styles {
+    <link href="~/Content/PCSManagement/PCSManagement.css" rel="stylesheet" />
+}
+
+@* PCS Management UI *@
+<div class="row" style="height:87vh; overflow:hidden; padding: 0 1%">
+    <div id="content">
+        <div id="searchContent" class="col-lg-2 no-padding">
+            <div class="filterHeaders">
+                <h4>Select Quality Station</h4>
+                <input autocomplete="off" class="form-control" data-bind="filterList: {
+                                           config: {placeholder: 'Select Locations (Equipment & Areas)', noCheckboxes: true},
+                                           filter: qualityStationsFilter,
+                                           data: qualityStations,
+                                           selected: selectedStation }" />
+            </div>
+            <div class="filterHeaders">
+                <h4>
+                    Select Routine
+                    <!-- ko if: selectedStation() !== null && selectedStation() !== undefined  -->
+                    <button data-bind="click: addRoutine, disable: selectedRoutine() && selectedRoutine()._isDirty()" class="fas fa-plus btn btn-default bs-tooltip btnDisplay" tooltip-title="New Routine" style="color:darkgreen;"></button>
+                    <!-- ko if: selectedRoutine() !== null && selectedRoutine() !== undefined && !addingRoutine() -->
+                    <a href="#removeRoutineModal" data-toggle="modal" class="btn btn-default fa fa-times bs-tooltip btnDisplay" tooltip-title="Remove Routine" style="color:#dc3545;"></a>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                </h4>
+                <input autocomplete="off" id="routineFilter" class="form-control" data-bind="disable: selectedStation() == null || (selectedRoutine() && selectedRoutine()._isDirty()), filterList: {
+                       config: {placeholder: 'Select Routine' , noCheckboxes: true, keyFunction: datum=> datum.id, displayFunction: datum => datum.name()},
+                filter: routinesFilter,
+                data: routines,
+                selected: selectedRoutine }" />
+            </div>
+            <!-- ko if: selectedRoutine() == null || selectedStation() == null -->
+            <div class="filterHeaders">
+                <h4>Select Frequency</h4>
+                <input class="form-control" placeholder="Select Frequency" disabled />
+            </div>
+            <!-- /ko -->
+            <div class="filterHeaders" data-bind="with: selectedRoutine">
+                <h4>Select Frequency</h4>
+                <input autocomplete="off" class="form-control" data-bind="filterList: {
+                       config: {placeholder: 'Select Frequency' , noCheckboxes: true, keyFunction: datum=> datum.frequency, displayFunction: datum=> datum.frequency, sortFunction: (a,b) => 0},
+                filter: _frequenciesFilter,
+                data: _frequenciesList,
+                selected: _selectedFrequencies }" />
+            </div>
+            <div class="filterHeaders" data-bind="with: selectedStation">
+                <h4>
+                    Affected Stations
+                    <span disabled class="fas fa-info-circle btn btn-default bs-tooltip btnDisplay" data-placement="right" tooltip-title="Any changes to the selected stations will also affect below stations listed."></span>
+                </h4>
+                <ul data-bind="foreach: $parent.affectedStations" style="padding-left:0px;">
+                    <li class="form-control" style="background: #eee;" data-bind="text: $data"></li>
+                </ul>
+            </div>
+        </div>
+        <div id="dataContent" class="col-lg-10">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active" style="padding-left:0px;"><a href="#tabCheckOrder" role="tab" data-toggle="tab">Check Order</a></li>
+                <li id="PageTitleTab" class="pull-left inputTextBox" data-bind="with: selectedRoutine">
+                    <input autocomplete="off" class="form-control" type="text" data-bind="value: name, css: {dirty : name.isDirty()}" placeholder="Routine Name" maxlength="100">
+                </li>
+            </ul>
+            <div data-bind="loading: isLoading" class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="tabCheckOrder">
+                    <div class="panel panel-default" style="height:99%; background: #d8d8d8;">
+                        <!-- ko if: selectedStation() == null && selectedRoutine() == null-->
+                        <h1 style="text-align:center;">Please select Quality Station to select the Routine</h1>
+                        <!--/ko-->
+                        <!-- ko if: selectedStation() != null && selectedRoutine() == null -->
+                        <h1 style="text-align:center;">Please select Routine to select the Frequency</h1>
+                        <!-- /ko -->
+                        <!-- ko if: selectedRoutine() != null && selectedRoutine()._displayOrders().length == 0 -->
+                        <h1 style="text-align:center;">Please select Frequency to see the Checks</h1>
+                        <!-- /ko -->
+                        <!-- ko if: selectedRoutine() != null && selectedRoutine()._displayOrders().length > 0 -->
+                        <div class="no-margin row">
+                            <div class="col-lg-1 controlHeaders"><h4>Order</h4></div>
+                            <div class="col-lg-6 controlHeaders"><h4>Step Description</h4></div>
+                            <div class="col-lg-3 controlHeaders"><h4>Control Characteristic</h4></div>
+                            <div class="col-lg-2 controlHeaders"><h4>Control Responsible</h4></div>
+                        </div>
+                        <div data-bind="with: selectedRoutine" style="height: 100%;">
+                            <ul class="list-group" data-bind="sortable: {data: _displayOrders, options: { cancel: '.no-sort'}}" style="height: 96%; overflow-y: auto;">
+                                <li class="list-group-item">
+                                    <div class="row" style="cursor: move;" data-bind="style: { color: _isRemoved() ? 'red' : 'black'}">
+                                        <div class="col-lg-1" data-bind="text: _isRemoved() || $index() + 1 > $parent._selectedOrdersLength? number : $index() + 1, style: {textDecoration: _isRemoved() ? 'line-through' : 'none'  }, css: {dirty: @*_isAdded() ||*@ number.isDirty() || number() !== $index() + 1, 'no-sort': _isRemoved()}"></div>
+                                        <div class="col-lg-6" data-bind="text: stepDescription, style: {textDecoration: _isRemoved() ? 'line-through' : 'none'  }, css: { dirty: @*_isAdded() ||*@ _isRemoved(), 'no-sort': _isRemoved()}"></div>
+                                        <div class="col-lg-3" data-bind="text: controlCharacteristic, style: {textDecoration: _isRemoved() ? 'line-through' : 'none'  }, css: { dirty: @*_isAdded() ||*@ _isRemoved(), 'no-sort': _isRemoved()}"></div>
+                                        <div class="col-lg-2" data-bind="text: controlResponsible, style: {textDecoration: _isRemoved() ? 'line-through' : 'none'  }, css: { dirty: @*_isAdded() ||*@ _isRemoved(), 'no-sort': _isRemoved()}"></div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- /ko -->
+                    </div>
+                </div>
+            </div>
+            @* Duplicate Checks Alert Modal *@
+            <div class="modal fade" id="duplicateChecksModal" tabindex="-1" role="dialog" aria-labelledby="duplicateChecksModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 style="color: red;" class="modal-title" id="duplicateChecksModal">Duplicate Checks</h4>
+                        </div>
+                        <div class="modal-body"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>  @* Duplicate Checks Alert Modal *@
+            @* Unsaved changes Alert Modal *@
+            <div class="modal fade" id="unsavedAlertModal" tabindex="-1" role="dialog" aria-labelledby="unsavedAlertModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 style="color: red;" class="modal-title" id="unsavedAlertModal">Unsaved Changes</h4>
+                        </div>
+                        <div class="modal-body">
+                            <label>You have unsaved changes on page. Would you still want to proceed?</label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bind="click: $root.save">Save</button>
+                            <button type="button" class="btn btn-primary" data-bind="click: $root.undoChanges">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>  @* Unsaved Alert Modal *@
+            @* Remove Routine Modal *@
+            <div class="modal fade" id="removeRoutineModal" tabindex="-1" role="dialog" aria-labelledby="removeRoutineModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="removeRoutineModal">Remove Routine</h4>
+                        </div>
+                        <div class="modal-body">
+                            <label>Are you sure you want to remove this Routine? </label>
+                            <br />
+                            <label style="color: red;">* This will also remove all the Frequencies and Orders associated with this Routine.</label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bind="click: $root.removeRoutine">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>  @* Remove Routine *@
+        </div>
+    </div>
+
+    @* Scripts to call js file and Viewbags *@
+    @section scripts {
+        <script src="~/scripts/PCSManagement/PCSManagement.js"></script>
+        <script type='text/javascript' src="~/scripts/PCSManagement/knockout-sortable.js"></script>
+        <script>
+            var qualityStations = @Html.Raw(ViewBag.qualityStations);
+            var currentUserId = '@ViewBag.userId';
+
+            $(document).ready(function () {
+                Footer({
+                    systemId: null,
+                    typeId: null,
+                    dataPK: null,
+                    userId: null,
+                    fullName: null
+                });
+
+                PCSManagement();
+                $('#content').tooltip({
+                    container: 'body',
+                    selector: '.bs-tooltip',
+                    title: function () {
+                        return $(this).attr('tooltip-title');
+                    },
+                    delay: { "show": 50, "hide": 0 }
+                });
+
+                $('.no-flash').removeClass('no-flash');
+            });
+        </script>
+    }

@@ -1,0 +1,203 @@
+﻿@model MvcSiteMapProvider.Web.Html.Models.MenuHelperModel
+@using System.Web.Mvc.Html
+@using MvcSiteMapProvider.Web.Html.Models
+@using Microsoft.AspNet.Identity
+
+@helper  TopMenu(List<SiteMapNodeModel> nodeList)
+{
+    <ul id="gn-menu" class="gn-menu-main no-print" style="font-size: 1em;z-index:1;">
+        <li class="gn-trigger">
+            <a class="gn-icon-menu" data-toggle="tooltip" data-placement="right" title="Menu" style="font-size: x-large;"><i class="fa fa-lg fa-bars fa-fw"></i></a>
+            <nav id="ml-menu" class=" gn-menu-wrapper">
+                <div class="menu__wrap">
+                    <ul data-menu="main" class="menu__level" tabindex="-1" role="menu" aria-label="All">
+                        @*<li class="gn-search-item menu__item" role="menuitem">
+                        <input id="mySearch" onkeyup="myFunction()" placeholder="Search for Menu..." type="text" class="gn-search" style="padding-left:0px; opacity:0.5;">
+                        <a class="gn-icon gn-icon-search"><span>Search</span></a>
+                    </li>*@
+                        <ul id="menu">
+                            <div style="overflow: auto; width: 83%; height: 100%; bottom: 0px; position: absolute;">
+                                @{int i = 0;}
+                                @{string menu = "submenu"; }
+                                @foreach (SiteMapNodeModel node in nodeList)
+                                {
+                                    if (node.Title == "Home")
+                                    {
+                                        /*Don't render the "Home" node*/
+                                    }
+                                    else
+                                    {
+                                        if (!node.Children.Any())
+                                        {
+                                            if (@node.Title != "Reports")
+                                            {
+                                                <li class="menu__item" role="menuitem" onmouseover="this.style.background = 'white'" onmouseout="this.style.background='none';"><a class="menu__link" href="@node.Url">@node.Title</a></li>
+                                            }
+                                            else
+                                            {
+                                                <li class="menu__item" role="menuitem" onmouseover="this.style.background = 'white'" onmouseout="this.style.background='none';"><a class="menu__link" href="@node.Url">@node.Title</a></li>
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            menu += i;
+                                            <li class="menu__item" role="menuitem" onmouseover="this.style.background = 'white'" onmouseout="this.style.background='none';">
+                                                <a class="menu__link" data-submenu="@menu" aria-owns="@menu" href="#">
+                                                    @node.Title
+                                                    <i class="fa fa-caret-right" style="line-height: 4.5;float: right; pointer-events:none;"></i>
+                                                </a>@DropDownMenu(@menu, @node.Title, node.Children)
+                                            </li>
+                                        }
+                                    }
+                                    i++;
+                                }
+                            </div>
+
+                        </ul>
+                    </ul>
+                </div><!-- /gn-scroller -->
+            </nav>
+        </li>
+        <li>
+            <div id="epiqs_home_link_internal" style="display:none;"><a href="/tac/default.aspx" style="font-size:30px;" onmouseover="this.style.background = 'transparent'"><span><img src="/shared/pics/EpiqsWhiteNarrow.png" alt="EPIQS" class="responsive" style="width: 150px; padding-left: 20px; padding-bottom: 4px;"></span></a></div>
+            <div id="epiqs_home_link_external" style="display:none;"><a href="/" style="font-size:30px;" onmouseover="this.style.background = 'transparent'"><span><img src="/shared/pics/EpiqsWhiteNarrow.png" alt="EPIQS" class="responsive" style="width: 150px; padding-left: 20px; padding-bottom: 4px;"></span></a></div>
+        </li>
+        @Html.Partial("_TaskManBarPartial")
+
+        <li>
+            @*<div style="display: inline-block; position: absolute; right: 375px; top: 5px; width: 40px;" id="dropdownDiv2">
+                <a href="#">
+                    <i class="fa fa-lg fa-star fa-fw" style="font-size: 2em;" data-toggle="tooltip" data-placement="bottom" title="Favorites"></i>
+                </a>
+                <ul class="dropdown-menu" style="position: absolute; top:55px;">
+                    <li><a href="/"></a></li>
+                    <li><a href="/"></a></li>
+                </ul>
+            </div>*@
+        </li>
+        <li>
+            <div style="display: inline-block; position: absolute; right: 335px; top: 5px; width: 40px;" id="dropdownDiv3">
+                <a class="dropdown-toggle trigger" href="#" data-toggle="dropdown" onfocus="this.style.background = 'white'; this.style.color='#5f6f81'" onfocusout="this.style.background = 'none'; this.style.color='white'">
+                    <i class="fa fa-lg fa-question fa-fw" style="font-size: 1.75em;" data-toggle="tooltip" data-placement="bottom" title="Help"></i>
+                </a>
+                <ul class="dropdown-menu" style="position: absolute; background:white; padding-left:0px; top:55px;">
+                    <li><a href="https://epiqs-helpdesk.zendesk.com/hc/en-us">HelpDesk</a></li>
+                    @*<li><a href="/">Knowledge Center</a></li>*@
+                </ul>
+            </div>
+        </li>
+        <li>
+            <div style="display: inline-block; position: absolute; right: 295px; top: 5px; width: 40px; padding-top:0px;" id="dropdownDiv4">
+                <a class="dropdown-toggle trigger" href="#" data-toggle="dropdown" onfocus="this.style.background = 'white'; this.style.color='#5f6f81'" onfocusout="this.style.background = 'none'; this.style.color='white'">
+                    <i class="fa fa-cog fa-fw" style="font-size: 1.75em;" data-toggle="tooltip" data-placement="bottom" title="Settings"></i>
+                </a>
+                <ul class="dropdown-menu" style="position: absolute; top:55px; background:white; padding-left:0px;">
+                    <li><a href="/qms/org/products">Product Management</a></li>
+                    <li><a href="/qms/org/units">Unit Management</a></li>
+                    <li><a href="/qms/org/usermanagement">User Management</a></li>
+                    <li>
+                        <a href="/qms/SystemSettings/DistributionList">Distribution Lists</a>
+                    </li>
+                    <li id="APPROVALCONFIG">
+                        <a href="/qms/SystemSettings/ApprovalConfig">Configure Approvals</a>
+                    </li>
+                    <li>
+                        <a href="/qms/SystemSettings/Workflow">Workflows</a>
+                    </li>
+                    <li id="FORMS_ADMIN">
+                        <a href="/qms/FormManagement/Admin">Forms Admin</a>
+                    </li>
+                    <li id="FORMS_CREATE">
+                        <a href="/qms/FormManagement/Record">Create Forms Record</a>
+                    </li>
+                    @if (HttpContext.Current.Session["UserID"] == null)
+                    {
+                        <li><h5 id="username" style="padding-left:20px; font-weight:bold;"></h5></li>
+                    }
+                    @if (HttpContext.Current.Session["UserID"] != null)
+                    {
+                        <li>
+                            <form id="unimpersonate" action="/qms/Account/unImpersonate" method="GET">
+                                <input type="hidden" id="returnUrl" name="returnUrl" />
+                                <button id="username" type="submit" style="padding-left:20px; font-weight:bold; background:none; border:hidden; text-decoration:underline; color:blue;"></button>
+                            </form>
+                        </li>
+
+                    }
+                </ul>
+            </div>
+        </li>
+        <li>
+            <div style="display: inline-block; position: absolute; right: 255px; width: 40px; font-size:2em; padding-top:3px;" id="dropdownDiv5">
+                <a class="dropdown-toggle trigger" href="#" data-toggle="dropdown" onfocus="this.style.background = 'white'; this.style.color='#5f6f81'" onfocusout="this.style.background = 'none'; this.style.color='white'">
+                    <i class="fa fa-sign-out fa-fw" data-toggle="tooltip" data-placement="bottom" title="Logout"></i>
+                </a>
+                <ul class="dropdown-menu" style="position: absolute; top:60px; background:white; padding-left:0px;height:33px;">
+                    <li>
+                        @if (HttpContext.Current.Request.IsAuthenticated == true)
+                        {
+                            <form id="logout" action="/qms/Account/LogOff" method="POST">
+                                <button class="btn btn-default" onmouseover="this.style.background = '#5f6f81'" onmouseout="this.style.background = 'transparent'" style="text-align:left;width:160px;margin-top:-33px;border-top:0.5px solid white;border-bottom:0.5px solid white;">
+                                    Logout
+                                </button>
+                            </form>
+                        }
+                    </li>
+                </ul>
+
+            </div>
+        </li>
+        <li>
+            <div style="display: none; position:absolute; right: 0px; top: 5px; width: 250px" id="searchBarDiv">
+                <input class="form-control input-sm" autocomplete="off" type="text" placeholder="Search" name="Search" id="searchBar" style="width:75%; margin-right: 0; display:inline;" />
+                <button class="btn btn-default btn-sm" id="searchBarButton" onclick="searchRedirect()"><span class="fas fa-search fa-fw"></span></button>
+            </div>
+        </li>
+
+    </ul>
+
+}
+@helper DropDownMenu(string menu, string title, SiteMapNodeModelList nodeList)
+{
+    <ul data-menu="@menu" id="@menu" class="menu__level" tabindex="-1" role="menu" aria-label="@title">
+        @*<h4 style="color: white; text-align: left; padding-left: 30px; padding-top:10px; opacity:0.3;" >@title</h4>*@
+        <div style="overflow: auto; width: 89%;height: 95%; position: fixed;left: 40px;top: 45px;right: 0px; padding-bottom: 30px;">
+            @{int i = 0;}
+            @{string submenu = "subsubmenu"; }
+            @foreach (SiteMapNodeModel node in nodeList)
+            {
+                if (!node.Children.Any())
+                {
+                    <li class="menu__item" role="menuitem" onmouseover="style='text-decoration:underline'" onmouseout="style='text-decoration:none'"><a style="text-align: left; padding-left: 35px; padding-top: 25px;" href="@node.Url">@node.Title</a></li>
+                }
+                else
+                {
+                    submenu = menu + submenu + i;
+                    <li class="menu__item" role="menuitem"><h5 style="text-align: left; padding-top: 25px; padding-left: 35px; color: white; font-weight:bold;" data-submenu="@submenu" aria-owns="@submenu">@node.Title</h5>@DropDownSubMenu(@submenu, node.Children)</li>
+                }
+                i++;
+            }
+        </div>
+
+    </ul>
+}
+
+@helper DropDownSubMenu(string submenu, SiteMapNodeModelList nodeList)
+{
+    <ul style="line-height: 33px;">
+        @foreach (SiteMapNodeModel node in nodeList)
+        {
+            if (!node.Children.Any())
+            {
+                <li role="menuitem" onmouseover="style='text-decoration:underline'" onmouseout="style='text-decoration:none'"><a style="text-align: left; padding-left: 30px; font-size:12.5px;" href="@node.Url">@node.Title</a></li>
+            }
+            else
+            {
+                <li role="menuitem"><h5 style="color: white; text-align: left; padding-left: 30px; padding-top: 25px; font-weight:bold;">@node.Title</h5> @DropDownSubMenu(@submenu, node.Children)</li>
+            }
+        }
+    </ul>
+}
+
+@TopMenu(Model.Nodes)

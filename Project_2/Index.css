@@ -1,0 +1,86 @@
+﻿body {
+}
+
+.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
+}
+
+#qmsContainer {
+    margin-top: 33px;
+    background-color: #f8f8f8;
+}
+
+.filterHeaders {
+    margin-bottom: 8px;
+}
+.btnDisplay {
+    display: inline-block;
+    padding: 5px 7px;
+    margin-top: -4px;
+}
+.inputTextBox {
+    padding-left: 450px;
+    font-size: 1.5em;
+}
+.controlHeaders {
+    border-bottom: 1px solid black;
+}
+/*#region Placeholders*/
+.form-control::-moz-placeholder {
+    font-style: italic;
+}
+
+.form-control:-ms-input-placeholder {
+    font-style: italic;
+}
+
+.form-control::-webkit-input-placeholder {
+    font-style: italic;
+}
+/*#endregion*/
+
+#content, #searchContent, #dataContent {
+    height: 100%;
+}
+
+    #content .nav-tabs {
+        border-color: #555;
+    }
+
+        #content .nav-tabs > li > a {
+            color: #555;
+            background-color: #eee;
+            border-color: #ccc;
+            border-bottom-color: #555;
+        }
+
+        #content .nav-tabs > li.active > a {
+            border-color: #555;
+            border-bottom-color: transparent;
+        }
+
+            #content .nav-tabs > li.active > a,
+            #content .nav-tabs > li.active > a:hover,
+            #content.nav-tabs > li.active > a:focus {
+                background-color: #d8d8d8;
+                font-weight: bold;
+            }
+
+    #content .tab-pane {
+        padding-top: 10px;
+        height: 100%;
+    }
+
+        #content .tab-pane > div.row {
+            height: 100%;
+        }
+
+    #content .tab-content {
+        border-left: 1px solid #555;
+        border-right: 1px solid #555;
+        border-bottom: 1px solid #555;
+        background-color: #d8d8d8;
+        height: 94%;
+    }
